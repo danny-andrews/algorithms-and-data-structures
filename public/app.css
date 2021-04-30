@@ -1,0 +1,7 @@
+body {
+  background: #f3f4f6;
+}
+
+.actions > * + * {
+  margin-left: 0.5rem;
+}

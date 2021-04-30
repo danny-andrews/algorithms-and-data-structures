@@ -1,0 +1,20 @@
+{
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "tap --no-coverage --reporter=dot",
+    "serve": "npx snowpack dev"
+  },
+  "dependencies": {
+    "chart.js": "^3.5.1",
+    "ramda": "^0.27.1",
+    "tap": "^15.0.9"
+  },
+  "devDependencies": {
+    "core-js-pure": "^3.16.2",
+    "fast-check": "^2.17.0",
+    "live-server": "^1.2.1",
+    "pure-rand": "^5.0.0",
+    "snowpack": "^3.8.6"
+  }
+}
