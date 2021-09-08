@@ -1,7 +1,11 @@
 import Chart, { generateChartConfig, CHART_COLORS } from "./chart";
 import Observable from "core-js-pure/features/observable";
+import { WORKBENCHES } from "../testing/benchmarks.js";
+import { render, html } from "uhtml";
+import { noop } from "../shared.js";
 
 const worker = new Worker("/client/worker.js", { type: "module" });
+const canvas = document.getElementById("chart");
 
 const fromWorkerEvent = (worker, eventType) =>
   new Observable((emitter) => {
@@ -18,17 +22,22 @@ const fromWorkerEvent = (worker, eventType) =>
     };
   });
 
-const initObserver = fromWorkerEvent(worker, "INIT");
 const newMarksObserver = fromWorkerEvent(worker, "NEW_MARKS");
 
-initObserver.subscribe({
-  next: ({ title, range }) => {
-    const config = generateChartConfig({ title, range });
-    const canvas = document.getElementById("chart");
-    const chart = new Chart(canvas.getContext("2d"), config);
-
+let chart = { destroy: noop };
+const Workbench = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const workbenchName = formData.get("workbench");
+    worker.postMessage({
+      type: "RUN_WORKBENCH",
+      data: workbenchName,
+    });
+    const { title } = WORKBENCHES[workbenchName];
+    chart.destroy();
+    chart = new Chart(canvas.getContext("2d"), generateChartConfig({ title }));
     newMarksObserver.subscribe((marks) => {
-      chart.data.labels.push(marks[0].n);
       marks.forEach(({ name, duration, n }, i) => {
         const existingDatasetIndex = chart.data.datasets.findIndex(
           ({ label }) => label === name
@@ -38,13 +47,32 @@ initObserver.subscribe({
             borderColor: CHART_COLORS[i],
             backgroundColor: CHART_COLORS[i],
             label: name,
-            data: [duration],
+            showLine: true,
+            data: [{ x: n, y: duration }],
           });
         } else {
-          chart.data.datasets[existingDatasetIndex].data.push(duration);
+          chart.data.datasets[existingDatasetIndex].data.push({
+            x: n,
+            y: duration,
+          });
         }
       });
       chart.update();
     });
-  },
-});
+  };
+
+  return html`
+    <form onsubmit=${handleSubmit}>
+      <label for="workbench">Choose a workbench:</label>
+      <select name="workbench" id="workbench">
+        ${Object.entries(WORKBENCHES).map(
+          ([name]) => html`<option value=${name}>${name.toLowerCase()}</option>`
+        )}
+      </select>
+      <button type="submit">Run!</button>
+    </form>
+  `;
+};
+
+const controls = document.querySelector(".controls");
+render(controls, Workbench());

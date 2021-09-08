@@ -21,7 +21,11 @@ export const isDivisible = (numerator, denominator) =>
 export const div = (numerator, denominator) =>
   Math.floor(numerator / denominator);
 
+export const roundTo = (precision, num) => Number(num.toFixed(precision));
+
 export const isNode =
   typeof process !== "undefined" &&
   process.versions != null &&
   process.versions.node != null;
+
+export const noop = () => {};

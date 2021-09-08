@@ -6,9 +6,11 @@ import {
   LineController,
   LineElement,
   PointElement,
+  ScatterController,
   Title,
   Tooltip,
 } from "chart.js";
+import { roundTo } from "../shared.js";
 
 Chart.register(
   CategoryScale,
@@ -17,17 +19,14 @@ Chart.register(
   LineController,
   LineElement,
   PointElement,
+  ScatterController,
   Title,
   Tooltip
 );
 
-const generateChartConfig = ({ title, range, displayXTicks = true }) => {
+const generateChartConfig = ({ title, displayXTicks = true }) => {
   return {
-    type: "line",
-    data: {
-      labels: [],
-      datasets: [],
-    },
+    type: "scatter",
     options: {
       responsive: true,
       maintainAspectRatio: true,
@@ -35,6 +34,13 @@ const generateChartConfig = ({ title, range, displayXTicks = true }) => {
         title: {
           display: true,
           text: title,
+        },
+        tooltip: {
+          callbacks: {
+            label: ({ dataset, parsed }) => {
+              return `${dataset.label}: (${parsed.x}, ${roundTo(3, parsed.y)})`;
+            },
+          },
         },
       },
       interaction: {
@@ -53,10 +59,7 @@ const generateChartConfig = ({ title, range, displayXTicks = true }) => {
         y: {
           title: {
             display: true,
-            text: "Runtime",
-          },
-          ticks: {
-            display: false,
+            text: "Runtime (ms)",
           },
         },
       },
@@ -65,14 +68,14 @@ const generateChartConfig = ({ title, range, displayXTicks = true }) => {
 };
 
 const CHART_COLORS = [
-  "#ff0000",
-  "#ff8700",
-  "#ffd300",
-  "#0aff99",
-  "#0aefff",
-  "#147df5",
-  "#580aff",
-  "#be0aff",
+  "hsla(0, 100%, 50%, 50%)",
+  "hsla(32, 100%, 50%, 50%)",
+  "hsla(50, 100%, 50%, 50%)",
+  "hsla(155, 100%, 52%, 50%)",
+  "hsla(184, 100%, 52%, 50%)",
+  "hsla(212, 92%, 52%, 50%)",
+  "hsla(259, 100%, 52%, 50%)",
+  "hsla(284, 100%, 52%, 50%)",
 ];
 
 export { CHART_COLORS, generateChartConfig };

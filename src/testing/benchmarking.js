@@ -7,11 +7,9 @@ import Observable from "core-js-pure/features/observable";
 
 const { performance } = perf_hooks;
 
-export const generate = (generator) => generator.generate(
-  new fc.Random(
-    prand.xoroshiro128plus(performance.now())
-  )
-).value;
+export const generate = (generator) =>
+  generator.generate(new fc.Random(prand.xoroshiro128plus(performance.now())))
+    .value;
 
 const time = (fn) => {
   const start = performance.now();
@@ -61,11 +59,13 @@ export const asympoticBenchmarks = ({
         .map(({ duration, ...rest }) => {
           return {
             ...rest,
-            duration,
+            duration: duration,
           };
         });
 
-      emitter.next(stuff);
+      if (!emitter.closed) {
+        emitter.next(stuff);
+      }
     });
     emitter.complete();
   });

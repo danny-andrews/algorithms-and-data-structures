@@ -1,29 +1,38 @@
 import { asympoticBenchmarks } from "../testing/benchmarking.js";
 import { WORKBENCHES } from "../testing/benchmarks.js";
+import { noop } from "../shared.js";
 
-const { title, range, benchmarks, comparisonBenchmarks } = asympoticBenchmarks(
-  WORKBENCHES.REVERSE
-);
+let subscription = { unsubscribe: noop };
 
-postMessage({
-  type: "INIT",
-  data: { title, range },
-});
+const runWorkbench = (workbench) => {
+  const { title, range, benchmarks, comparisonBenchmarks } =
+    asympoticBenchmarks(WORKBENCHES[workbench]);
 
-const allMarks = [];
+  const allMarks = [];
+  subscription.unsubscribe();
 
-benchmarks.subscribe({
-  next: (marks) => {
-    allMarks.push(marks);
-    postMessage({
-      type: "NEW_MARKS",
-      data: marks,
-    });
-  },
-  complete: () => {
-    postMessage({
-      type: "ALL_MARKS",
-      data: { title, range, markSets: allMarks, comparisonBenchmarks },
-    });
-  },
-});
+  subscription = benchmarks.subscribe({
+    next: (marks) => {
+      allMarks.push(marks);
+      postMessage({
+        type: "NEW_MARKS",
+        data: marks,
+      });
+    },
+    complete: () => {
+      postMessage({
+        type: "ALL_MARKS",
+        data: { title, range, markSets: allMarks, comparisonBenchmarks },
+      });
+    },
+  });
+};
+
+onmessage = (message) => {
+  const { type, data } = message.data;
+  if (type === "RUN_WORKBENCH") runWorkbench(data);
+};
+
+onerror = (e) => {
+  console.error(e);
+};
