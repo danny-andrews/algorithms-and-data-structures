@@ -14,6 +14,7 @@ const runWorkbench = (workbench) => {
   subscription = benchmarks.subscribe({
     next: (marks) => {
       allMarks.push(marks);
+      console.log("klds");
       postMessage({
         type: "NEW_MARKS",
         data: marks,

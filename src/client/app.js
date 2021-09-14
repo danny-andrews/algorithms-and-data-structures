@@ -25,19 +25,21 @@ const fromWorkerEvent = (worker, eventType) =>
 const newMarksObserver = fromWorkerEvent(worker, "NEW_MARKS");
 
 let chart = { destroy: noop };
+let subscription = { unsubscribe: noop };
 const Workbench = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const workbenchName = formData.get("workbench");
+    chart.destroy();
+    subscription.unsubscribe();
     worker.postMessage({
       type: "RUN_WORKBENCH",
       data: workbenchName,
     });
     const { title } = WORKBENCHES[workbenchName];
-    chart.destroy();
     chart = new Chart(canvas.getContext("2d"), generateChartConfig({ title }));
-    newMarksObserver.subscribe((marks) => {
+    subscription = newMarksObserver.subscribe((marks) => {
       marks.forEach(({ name, duration, n }, i) => {
         const existingDatasetIndex = chart.data.datasets.findIndex(
           ({ label }) => label === name

@@ -29,3 +29,8 @@ export const isNode =
   process.versions.node != null;
 
 export const noop = () => {};
+
+export const wait = (time) =>
+  new Promise((resolve) => {
+    setTimeout(() => resolve(time), time);
+  });

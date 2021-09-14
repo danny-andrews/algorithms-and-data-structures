@@ -2,7 +2,7 @@ import fc from "fast-check";
 import prand from "pure-rand";
 import * as R from "ramda";
 import perf_hooks from "perf_hooks";
-import { range, pipeline } from "../shared.js";
+import { range, pipeline, wait } from "../shared.js";
 import Observable from "core-js-pure/features/observable";
 
 const { performance } = perf_hooks;
@@ -45,29 +45,31 @@ export const asympoticBenchmarks = ({
   generator,
   iterations,
 }) => {
-  const benchmarks = new Observable((emitter) => {
-    range(steps, 1, stepSize).forEach((n) => {
-      const stuff = subjects
-        .map((subject) => {
-          const gen = R.pipe(generator, generate);
-          return {
-            name: subject.name,
-            n,
-            duration: medianTime(() => subject.fn(gen(n)), iterations),
-          };
-        })
-        .map(({ duration, ...rest }) => {
-          return {
-            ...rest,
-            duration: duration,
-          };
-        });
+  async function* asyncGenerator() {
+    for (let n of range(steps, 1, stepSize)) {
+      yield subjects.map((subject) => {
+        const gen = R.pipe(generator, generate);
+        return {
+          name: subject.name,
+          n,
+          duration: medianTime(() => subject.fn(gen(n)), iterations),
+        };
+      });
+    }
+  }
 
-      if (!emitter.closed) {
+  const benchmarks = new Observable((emitter) => {
+    (async () => {
+      for await (const stuff of asyncGenerator()) {
+        await wait();
+        if (emitter.closed) {
+          break;
+        }
         emitter.next(stuff);
+        await wait();
       }
-    });
-    emitter.complete();
+      emitter.complete();
+    })();
   });
 
   return {
