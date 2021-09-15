@@ -7,9 +7,9 @@ import Observable from "core-js-pure/features/observable";
 
 const { performance } = perf_hooks;
 
-export const generate = (generator) =>
-  generator.generate(new fc.Random(prand.xoroshiro128plus(performance.now())))
-    .value;
+const rng = new fc.Random(prand.xoroshiro128plus(performance.now()));
+
+export const generate = (generator) => generator.generate(rng).value;
 
 const time = (fn) => {
   const start = performance.now();
@@ -43,7 +43,7 @@ export const asympoticBenchmarks = ({
   steps,
   stepSize,
   generator,
-  iterations,
+  iterations = 100,
 }) => {
   async function* asyncGenerator() {
     for (let n of range(steps, 1, stepSize)) {

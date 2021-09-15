@@ -1,4 +1,5 @@
 import * as R from "ramda";
+import Observable from "core-js-pure/features/observable";
 
 export const range = (size, startAt = 0, step = 1) =>
   R.range(startAt, startAt + size).map((n) => n * step);
@@ -33,4 +34,19 @@ export const noop = () => {};
 export const wait = (time) =>
   new Promise((resolve) => {
     setTimeout(() => resolve(time), time);
+  });
+
+export const fromWorkerEvent = (worker, eventType) =>
+  new Observable((emitter) => {
+    const listener = (e) => {
+      const { type, data } = e.data;
+      if (type === eventType) {
+        emitter.next(data);
+      }
+    };
+    worker.addEventListener("message", listener);
+
+    return () => {
+      worker.removeEventListener("message", listener);
+    };
   });

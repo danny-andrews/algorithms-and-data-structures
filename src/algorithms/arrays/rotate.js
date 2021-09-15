@@ -1,5 +1,3 @@
-import { div } from "../../shared.js";
-
 /*
  * rotate: Given an array of integers `nums` and an integer `k`, return an array which
  * is shifted to the right by `k` steps.
@@ -16,32 +14,10 @@ import { div } from "../../shared.js";
  * 1. rotate([1, 2, 3], -2) -> [3, 1, 2]
  * 1. rotate([1, 2], 2) -> [1, 2]
  */
-const rotate = (nums, k) => {};
+const rotateQuadratic = (nums, k) => {};
 
-const rotateLevel2 = (nums, k) => {};
+const rotateLinear = (nums, k) => {};
 
-const rotateLevel3 = (nums, k) => {
-  const n = nums.length;
-  const shift = k % n;
-  if (n <= 1 || shift === 0) return nums;
+const rotateLinearInPlace = (nums, k) => {};
 
-  let iterations = 1;
-  let i = 0;
-  let lastEl = nums[i];
-  nums[i] = nums[(i + shift) % n];
-  i = (i - shift + n) % n;
-
-  while (iterations <= n) {
-    const temp = nums[i];
-    nums[i] = lastEl;
-    lastEl = temp;
-    i = (i - shift + n) % n;
-    iterations++;
-  }
-
-  return nums;
-};
-
-export default rotate;
-
-export { rotateLevel2, rotateLevel3 };
+export { rotateQuadratic, rotateLinear, rotateLinearInPlace };

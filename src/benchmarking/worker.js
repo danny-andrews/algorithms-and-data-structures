@@ -1,5 +1,5 @@
-import { asympoticBenchmarks } from "../testing/benchmarking.js";
-import { WORKBENCHES } from "../testing/benchmarks.js";
+import { asympoticBenchmarks } from "./benchmarking.js";
+import { WORKBENCHES } from "./workbenches.js";
 import { noop } from "../shared.js";
 
 let subscription = { unsubscribe: noop };
@@ -14,7 +14,6 @@ const runWorkbench = (workbench) => {
   subscription = benchmarks.subscribe({
     next: (marks) => {
       allMarks.push(marks);
-      console.log("klds");
       postMessage({
         type: "NEW_MARKS",
         data: marks,

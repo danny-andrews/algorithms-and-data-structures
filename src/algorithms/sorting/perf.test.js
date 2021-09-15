@@ -1,6 +1,6 @@
-import R from "ramda";
-import { generate, medianTime } from "../../testing/benchmarking.js";
-import { arrGenerator } from "../../testing/benchmarks.js";
+import * as R from "ramda";
+import { generate, medianTime } from "../../benchmarking/benchmarking.js";
+import { arrGenerator } from "../../benchmarking/shared.js";
 import {
   bubbleSort,
   selectionSort,

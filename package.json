@@ -2,10 +2,11 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "test": "tap --no-coverage --reporter=dot",
+    "test": "tap --no-coverage --reporter=spec",
     "serve": "npx snowpack dev"
   },
   "dependencies": {
+    "change-case": "^4.1.2",
     "chart.js": "^3.5.1",
     "ramda": "^0.27.1",
     "tap": "^15.0.9",

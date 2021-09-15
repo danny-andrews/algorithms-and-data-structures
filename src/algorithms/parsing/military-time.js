@@ -16,24 +16,23 @@
  * 2. Regular expressions may be helpful for parsing.
  * 3. Look into the % operator.
  */
-const toMilitaryTime = (time) => {
-  const parse = (time) => {
-    const [, hoursStr, minutes, period] = time.match(
-      /(\d{1,2}):(\d{2})(\w{2})/
-    );
+const TIME_REGEX = /^(1[0-2]|0?[1-9]):([0-5][0-9])( ?[ap]m)$/;
 
-    return {
-      hours: Number(hoursStr),
-      minutes: Number(minutes),
-      period: period.toUpperCase(),
-    };
+const parseCivilianTime = (time) => {
+  const [, hours, minutes, period] = time.match(TIME_REGEX);
+
+  return {
+    hours: Number(hours),
+    minutes,
+    period: period.toUpperCase(),
   };
-
-  const formatTime = (time) => time.toString().padStart(2, "0");
-
-  const { hours, minutes, period } = parse(time);
-
-  return [(hours % 12) + (period === "PM" ? 12 : 0), minutes]
-    .map(formatTime)
-    .join("");
 };
+
+const toMilitaryTime = (time) => {
+  const { hours, minutes, period } = parseCivilianTime(time);
+  const militaryHours = (hours % 12) + (period === "PM" ? 12 : 0);
+
+  return militaryHours.toString().padStart(2, "0") + minutes;
+};
+
+export default toMilitaryTime;

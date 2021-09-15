@@ -13,6 +13,8 @@ This repo has a test suite which can be added to while developing solutions. Tes
 - Any .js file inside a directory named "test", "tests", or "**test**"
 - Any file ending in ".test.js"
 
+To run only a specific test file, include the path after the command, e.g. `$ npm run test src/algorithms/parsing/test/military-time.js`.
+
 https://node-tap.org/docs/cli/
 
 ## Tips and Tricks
