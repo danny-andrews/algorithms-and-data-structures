@@ -9,6 +9,7 @@ const worker = new Worker("/benchmarking/worker.js", { type: "module" });
 const postMessage = (type, data) => worker.postMessage({ type, data });
 
 const canvas = document.getElementById("chart");
+const controls = document.querySelector(".controls");
 
 let chart = { destroy: noop };
 let subscription = { unsubscribe: noop };
@@ -20,40 +21,51 @@ const workbenches = Object.entries(WORKBENCHES).map(([name, workbench]) => ({
   name,
 }));
 
-const handleSubmit = (e) => {
-  e.preventDefault();
+const createDataset = ({ num, label, data }) => ({
+  borderColor: CHART_COLORS[num],
+  backgroundColor: CHART_COLORS[num],
+  showLine: true,
+  label,
+  data,
+});
 
-  const workbenchName = new FormData(e.target).get("workbench");
-  chart.destroy();
-  subscription.unsubscribe();
-  postMessage("RUN_WORKBENCH", workbenchName);
-  const { title } = WORKBENCHES[workbenchName];
-  chart = new Chart(canvas.getContext("2d"), generateChartConfig({ title }));
-  subscription = newMarksObserver.subscribe((marks) => {
-    marks.forEach(({ name, duration, n }, i) => {
-      const existingDatasetIndex = chart.data.datasets.findIndex(
-        ({ label }) => label === name
+const addMarksToChart = (marks) => {
+  marks.forEach(({ name, duration, n }, i) => {
+    const existingDatasetIndex = chart.data.datasets.findIndex(
+      ({ label }) => label === name
+    );
+    const datapoint = { x: n, y: duration };
+    if (existingDatasetIndex === -1) {
+      chart.data.datasets.push(
+        createDataset({ num: i, label: name, data: [datapoint] })
       );
-      if (existingDatasetIndex === -1) {
-        chart.data.datasets.push({
-          borderColor: CHART_COLORS[i],
-          backgroundColor: CHART_COLORS[i],
-          label: name,
-          showLine: true,
-          data: [{ x: n, y: duration }],
-        });
-      } else {
-        chart.data.datasets[existingDatasetIndex].data.push({
-          x: n,
-          y: duration,
-        });
-      }
-    });
-    chart.update();
+    } else {
+      chart.data.datasets[existingDatasetIndex].data.push(datapoint);
+    }
   });
+  chart.update();
 };
 
-const controls = document.querySelector(".controls");
+const cleanup = () => {
+  chart.destroy();
+  subscription.unsubscribe();
+};
+
+const handleSubmit = (event) => {
+  const workbenchName = new FormData(event.target).get("workbench");
+
+  cleanup();
+
+  postMessage("RUN_WORKBENCH", workbenchName);
+
+  chart = new Chart(
+    canvas.getContext("2d"),
+    generateChartConfig({ title: WORKBENCHES[workbenchName].title })
+  );
+  subscription = newMarksObserver.subscribe(addMarksToChart);
+
+  event.preventDefault();
+};
 
 const Workbench = (workbenches, selectedWorkbench = R.head(workbenches)) => {
   const NAME = "workbench";
