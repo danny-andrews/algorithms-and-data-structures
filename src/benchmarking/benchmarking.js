@@ -1,9 +1,9 @@
 import fc from "fast-check";
 import prand from "pure-rand";
 import * as R from "ramda";
+import { capitalCase } from "change-case";
 import perf_hooks from "perf_hooks";
-import { range, pipeline, wait } from "../shared.js";
-import Observable from "core-js-pure/features/observable";
+import { pipeline } from "../shared.js";
 
 const { performance } = perf_hooks;
 
@@ -38,47 +38,21 @@ export const normalizeStats = (stats) => {
 
 export const asympoticBenchmarks = ({
   subjects,
-  comparisons,
-  title,
-  steps,
-  stepSize,
+  range,
   generator,
   iterations = 100,
 }) => {
-  async function* asyncGenerator() {
-    for (let n of range(steps, 1, stepSize)) {
-      yield subjects.map((subject) => {
-        const gen = R.pipe(generator, generate);
-        return {
-          name: subject.name,
-          n,
-          duration: medianTime(() => subject.fn(gen(n)), iterations),
-        };
-      });
+  const gen = R.pipe(generator, generate);
+
+  async function* benchmarkSets() {
+    for (let n of range) {
+      yield subjects.map((subject) => ({
+        name: capitalCase(subject.name),
+        n,
+        duration: medianTime(() => subject(gen(n)), iterations),
+      }));
     }
   }
 
-  const benchmarks = new Observable((emitter) => {
-    (async () => {
-      for await (const stuff of asyncGenerator()) {
-        await wait();
-        if (emitter.closed) {
-          break;
-        }
-        emitter.next(stuff);
-        await wait();
-      }
-      emitter.complete();
-    })();
-  });
-
-  return {
-    benchmarks,
-    comparisonBenchmarks: comparisons.map((comparison) => ({
-      name: comparison.name,
-      marks: range(steps, 1).map((n) => Math.ceil(comparison.fn(n))),
-    })),
-    title,
-    range: range(steps, 1, stepSize),
-  };
+  return benchmarkSets;
 };
