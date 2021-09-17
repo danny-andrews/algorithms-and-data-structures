@@ -1,7 +1,30 @@
+/* @import "@shoelace-style/shoelace"; */
+@import "@shoelace-style/shoelace/dist/themes/light.css";
+
 body {
   background: #f3f4f6;
+  font-family: var(--sl-font-sans);
 }
 
 .actions > * + * {
   margin-left: 0.5rem;
+}
+
+.controls {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+}
+
+.workbench-form > * + * {
+  margin-top: var(--sl-spacing-small);
+}
+
+.workbench-form-card,
+.workbench-info-card {
+  width: 50%;
+}
+
+.workbench-info-card::part(base) {
+  height: 100%;
 }
