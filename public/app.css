@@ -1,9 +1,14 @@
 /* @import "@shoelace-style/shoelace"; */
 @import "@shoelace-style/shoelace/dist/themes/light.css";
 
+html,
 body {
   background: #f3f4f6;
   font-family: var(--sl-font-sans);
+  width: 100%;
+  padding: var(--sl-spacing-small);
+  box-sizing: border-box;
+  margin: 0;
 }
 
 .actions > * + * {
@@ -25,6 +30,19 @@ body {
   width: 50%;
 }
 
+.workbench-info-card {
+  margin-left: var(--sl-spacing-small);
+}
+
 .workbench-info-card::part(base) {
   height: 100%;
+}
+
+.chart-card {
+  width: 100%;
+  margin-top: var(--sl-spacing-small);
+}
+
+.chart-card::body {
+  width: 100%;
 }
