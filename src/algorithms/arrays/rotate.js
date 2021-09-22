@@ -30,7 +30,7 @@ const rotateLinear = (arr, k) => {
 const rotateQuadratic = (arr, k) => {
   const shiftCount = Math.abs(k % arr.length);
   let i = 1;
-  while (i <= times) {
+  while (i++ <= shiftCount) {
     if (k > 0) {
       arr.unshift(arr.pop());
     } else {

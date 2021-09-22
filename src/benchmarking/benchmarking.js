@@ -42,14 +42,16 @@ export const asympoticBenchmarks = ({
   generator,
   iterations = 100,
 }) => {
-  const gen = R.pipe(generator, generate);
+  const generators = [].concat(generator);
+  const generateInput = (n) =>
+    generators.map((generator) => generate(generator(n)));
 
   async function* benchmarkSets() {
     for (let n of range) {
       yield subjects.map((subject) => ({
         name: capitalCase(subject.name),
         n,
-        duration: medianTime(() => subject(gen(n)), iterations),
+        duration: medianTime(() => subject(...generateInput(n)), iterations),
       }));
     }
   }

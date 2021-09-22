@@ -96,6 +96,10 @@ main {
   width: 100%;
 }
 
+.workbench-form {
+  flex-grow: 1;
+}
+
 @media (min-width: 900px) {
   .workbench-form sl-button + sl-button {
     margin-left: var(--sl-spacing-small);
@@ -118,16 +122,32 @@ main {
 }
 
 .workbench-info-table {
-  text-align: left;
+  border-collapse: collapse;
+}
+
+.workbench-info-table tr + tr {
+  border-top: 1px solid var(--border-color);
+}
+
+.workbench-info-table th + td {
+  border-left: 1px solid var(--border-color);
 }
 
 .workbench-info-table th {
-  padding-right: var(--sl-spacing-x-small);
   width: 1px; /* Hack */
+  text-align: right;
 }
 
 .workbench-info-table th,
 .workbench-info-table td {
-  padding-top: var(--sl-spacing-3x-small);
-  padding-bottom: var(--sl-spacing-3x-small);
+  padding: var(--sl-spacing-x-small);
+}
+
+.workbench-info-table table {
+  table-layout: fixed;
+}
+
+.center-contents-vertically {
+  display: flex;
+  align-items: center;
 }

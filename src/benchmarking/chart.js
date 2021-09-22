@@ -24,7 +24,10 @@ Chart.register(
   Tooltip
 );
 
-export const generateChartConfig = ({ title, displayXTicks = true }) => {
+export const generateChartConfig = ({
+  title = "",
+  displayXTicks = true,
+} = {}) => {
   return {
     type: "scatter",
     options: {
@@ -68,14 +71,12 @@ export const generateChartConfig = ({ title, displayXTicks = true }) => {
 };
 
 export const CHART_COLORS = [
-  "hsla(0, 100%, 50%, 50%)",
-  "hsla(32, 100%, 50%, 50%)",
-  "hsla(155, 100%, 52%, 50%)",
-  "hsla(212, 92%, 52%, 50%)",
-  "hsla(184, 100%, 52%, 50%)",
-  "hsla(259, 100%, 52%, 50%)",
-  "hsla(284, 100%, 52%, 50%)",
-  "hsla(50, 100%, 50%, 50%)",
+  "rgb(80, 227, 133)",
+  "rgb(102, 170, 255",
+  "rgb(254, 118, 118)",
+  "rgb(255, 209, 30)",
+  "rgb(197 137 255)",
+  "rgb(255 151 65)",
 ];
 
 export default Chart;

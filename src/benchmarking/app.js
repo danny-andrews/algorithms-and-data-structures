@@ -20,6 +20,8 @@ const controls = document.querySelector(".controls");
 
 const newMarksObserver = fromWorkerEvent(worker, "NEW_MARKS");
 
+const numberFormat = new Intl.NumberFormat("en-US", { style: "decimal" });
+
 const workbenches = Object.entries(WORKBENCHES).map(([name, workbench]) => ({
   ...workbench,
   subjects: workbench.subjects.map((subject) => ({
@@ -61,7 +63,7 @@ const addMarksToChart = (marks, chart) => {
   chart.update();
 };
 
-let chart = { destroy: noop };
+let chart = new Chart(canvas.getContext("2d"), generateChartConfig());
 let subscriptions = [];
 
 const cleanup = () => {
@@ -120,42 +122,47 @@ const Workbench = (workbenches, selectedWorkbench = R.head(workbenches)) => {
     event.preventDefault();
     runWorkbench(event.detail.formData.get("workbench"));
   };
-  const endpoints = [R.head(range), R.last(range)].join(" - ");
+  const endpointStr = [R.head(range), R.last(range)]
+    .filter((num) => Boolean(num))
+    .map((num) => numberFormat.format(num))
+    .join(" - ");
 
   return html`
     <sl-card>
       <div class="container-thingy">
-        <sl-form class="workbench-form" onsl-submit=${handleSubmit}>
-          <sl-select
-            label="Choose a workbench"
-            onsl-change=${handleInput}
-            value=${workbenchName}
-            name=${NAME}
-          >
-            ${workbenches.map(
-              ({ name, title }) =>
-                html`<sl-menu-item value=${name}>${title}</sl-menu-item>`
-            )}
-          </sl-select>
-          <sl-button submit type="success">Run</sl-button
-          ><sl-button type="danger" disabled>Stop</sl-button>
-        </sl-form>
+        <div class="center-contents-vertically">
+          <sl-form class="workbench-form" onsl-submit=${handleSubmit}>
+            <sl-select
+              label="Choose a workbench"
+              onsl-change=${handleInput}
+              value=${workbenchName}
+              name=${NAME}
+            >
+              ${workbenches.map(
+                ({ name, title }) =>
+                  html`<sl-menu-item value=${name}>${title}</sl-menu-item>`
+              )}
+            </sl-select>
+            <sl-button submit type="success">Run</sl-button
+            ><sl-button type="danger" disabled>Stop</sl-button>
+          </sl-form>
+        </div>
         <div class="workbench-info-container">
           <table class="workbench-info-table">
             <tbody>
               <tr>
-                <th>Functions:</th>
+                <th>Functions</th>
                 <td>${subjects.map(({ fn }) => fn.name).join(", ")}</td>
               </tr>
               <tr>
-                <th>Iterations:</th>
+                <th>Iterations</th>
                 <td>1000</td>
               </tr>
               <tr>
-                <th>n-Values:</th>
+                <th>n-Values</th>
                 <td>
                   <sl-dropdown>
-                    <sl-button slot="trigger" caret>${endpoints}</sl-button>
+                    <sl-button slot="trigger" caret>${endpointStr}</sl-button>
                     <sl-menu>
                       ${range.map(
                         (number) => html`

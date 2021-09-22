@@ -26,7 +26,7 @@ export const WORKBENCHES = {
   ROTATE: {
     title: "Array Rotation",
     subjects: R.values(rotationSubjects),
-    generator: (n) => [arrGenerator(n), fc.integer()],
+    generator: [arrGenerator, (n) => fc.integer(0, n)],
     range: range(10, 1, 2000),
   },
 };
