@@ -99,6 +99,7 @@ const runWorkbench = (workbenchName) => {
           data: marks.map(markToDataPoint),
         });
       });
+      console.log(stuff, "all marks");
     }),
     newMarksObserver.subscribe({
       next: (marks) => addMarksToChart(marks, chart),
@@ -128,58 +129,51 @@ const Workbench = (workbenches, selectedWorkbench = R.head(workbenches)) => {
     .join(" - ");
 
   return html`
-    <sl-card>
-      <div class="container-thingy">
-        <div class="center-contents-vertically">
-          <sl-form class="workbench-form" onsl-submit=${handleSubmit}>
-            <sl-select
-              label="Choose a workbench"
-              onsl-change=${handleInput}
-              value=${workbenchName}
-              name=${NAME}
-            >
-              ${workbenches.map(
-                ({ name, title }) =>
-                  html`<sl-menu-item value=${name}>${title}</sl-menu-item>`
-              )}
-            </sl-select>
-            <sl-button submit type="success">Run</sl-button
-            ><sl-button type="danger" disabled>Stop</sl-button>
-          </sl-form>
-        </div>
-        <div class="workbench-info-container">
-          <table class="workbench-info-table">
-            <tbody>
-              <tr>
-                <th>Functions</th>
-                <td>${subjects.map(({ fn }) => fn.name).join(", ")}</td>
-              </tr>
-              <tr>
-                <th>Iterations</th>
-                <td>1000</td>
-              </tr>
-              <tr>
-                <th>n-Values</th>
-                <td>
-                  <sl-dropdown>
-                    <sl-button slot="trigger" caret>${endpointStr}</sl-button>
-                    <sl-menu>
-                      ${range.map(
-                        (number) => html`
-                          <sl-menu-item value=${number}>
-                            <sl-format-number value=${number}>
-                            </sl-format-number>
-                          </sl-menu-item>
-                        `
-                      )}
-                    </sl-menu>
-                  </sl-dropdown>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+    <sl-card class="panel">
+      <sl-form class="workbench-form" onsl-submit=${handleSubmit}>
+        <sl-select
+          label="Choose a workbench"
+          onsl-change=${handleInput}
+          value=${workbenchName}
+          name=${NAME}
+        >
+          ${workbenches.map(
+            ({ name, title }) =>
+              html`<sl-menu-item value=${name}>${title}</sl-menu-item>`
+          )}
+        </sl-select>
+        <sl-button submit type="success">Run</sl-button
+        ><sl-button type="danger" disabled>Stop</sl-button>
+      </sl-form>
+      <table class="workbench-info-table">
+        <tbody>
+          <tr>
+            <th>Functions</th>
+            <td>${subjects.map(({ fn }) => fn.name).join(", ")}</td>
+          </tr>
+          <tr>
+            <th>Iterations</th>
+            <td>1000</td>
+          </tr>
+          <tr>
+            <th>n-Values</th>
+            <td>
+              <sl-dropdown>
+                <sl-button slot="trigger" caret>${endpointStr}</sl-button>
+                <sl-menu>
+                  ${range.map(
+                    (number) => html`
+                      <sl-menu-item value=${number}>
+                        <sl-format-number value=${number}> </sl-format-number>
+                      </sl-menu-item>
+                    `
+                  )}
+                </sl-menu>
+              </sl-dropdown>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </sl-card>
   `;
 };

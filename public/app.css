@@ -2,62 +2,37 @@
 @import "@shoelace-style/shoelace/dist/themes/light.css";
 @import "./reset.css";
 
-html,
 body {
-  background: #f3f4f6;
   font-family: var(--sl-font-sans);
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  margin: 0;
+  background: rgb(var(--sl-color-neutral-50));
+  min-height: 100vh;
 }
 
 main {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: var(--sl-spacing-large);
 }
 
-.container-thingy {
+main > * + * {
+  margin-top: var(--sl-spacing-small);
+}
+
+.panel::part(body) {
   display: grid;
-  grid-gap: 2px;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr auto;
-  background-color: var(--border-color);
-}
-
-.container-thingy > * {
-  background-color: white;
-}
-
-.container-thingy > :first-child {
-  padding-right: 0;
-  padding-bottom: var(--sl-spacing-medium);
-}
-
-.container-thingy > :not(:first-child) {
-  padding-left: 0;
-  padding-top: var(--sl-spacing-medium);
+  grid-gap: var(--sl-spacing-large);
+  align-items: center;
 }
 
 @media (min-width: 900px) {
-  .container-thingy {
+  .panel::part(body) {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr;
   }
-
-  .container-thingy > :first-child {
-    padding-bottom: 0;
-    padding-right: var(--sl-spacing-medium);
-  }
-
-  .container-thingy > :not(:first-child) {
-    padding-top: 0;
-    padding-left: var(--sl-spacing-medium);
-  }
-}
-
-dd:after {
-  content: "\a";
-  white-space: pre;
 }
 
 sl-card,
@@ -65,31 +40,13 @@ sl-card::part(body) {
   width: 100%;
 }
 
-.actions > * + * {
-  margin-left: var(--sl-spacing-small);
-}
-
 .workbench-form > * + * {
   margin-top: var(--sl-spacing-small);
-}
-
-main {
-  margin: 0 auto;
 }
 
 .controls {
   max-width: 800px;
   width: 100%;
-}
-
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.container > * + * {
-  margin-top: var(--sl-spacing-small);
 }
 
 .workbench-form sl-button {
@@ -115,12 +72,6 @@ main {
   font-size: var(--sl-font-size-2x-large);
 }
 
-.workbench-info-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
 .workbench-info-table {
   border-collapse: collapse;
 }
@@ -141,13 +92,4 @@ main {
 .workbench-info-table th,
 .workbench-info-table td {
   padding: var(--sl-spacing-x-small);
-}
-
-.workbench-info-table table {
-  table-layout: fixed;
-}
-
-.center-contents-vertically {
-  display: flex;
-  align-items: center;
 }
