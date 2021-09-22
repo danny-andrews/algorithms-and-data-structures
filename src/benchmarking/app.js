@@ -2,19 +2,21 @@ import * as R from "ramda";
 import Chart, { generateChartConfig, CHART_COLORS } from "./chart";
 import { WORKBENCHES } from "./workbenches";
 import { render, html } from "uhtml";
-import { noop, fromWorkerEvent } from "../shared.js";
+import {
+  noop,
+  fromWorkerEvent,
+  reduceObservable,
+  mapUpdate,
+} from "../shared.js";
 import { capitalCase } from "change-case";
 import "./components.js";
 
 const worker = new Worker("/benchmarking/worker.js", { type: "module" });
 
-const postMessage = (type, data) => worker.postMessage({ type, data });
+const postMessage = (name, data) => worker.postMessage({ name, data });
 
 const canvas = document.getElementById("chart");
 const controls = document.querySelector(".controls");
-
-let chart = { destroy: noop };
-let subscription = { unsubscribe: noop };
 
 const newMarksObserver = fromWorkerEvent(worker, "NEW_MARKS");
 
@@ -35,48 +37,77 @@ const createDataset = ({ num, label, data }) => ({
   data,
 });
 
-const addMarksToChart = (marks) => {
-  marks.forEach(({ name, duration, n }, i) => {
-    const existingDatasetIndex = chart.data.datasets.findIndex(
-      ({ label }) => label === name
+const markToDataPoint = ({ n, duration }) => ({ x: n, y: duration });
+
+const addMarkToChart = (mark, num, chart) => {
+  const { name } = mark;
+  const existingDatasetIndex = chart.data.datasets.findIndex(
+    ({ label }) => label === name
+  );
+  const datapoint = markToDataPoint(mark);
+  if (existingDatasetIndex === -1) {
+    chart.data.datasets.push(
+      createDataset({ num, label: name, data: [datapoint] })
     );
-    const datapoint = { x: n, y: duration };
-    if (existingDatasetIndex === -1) {
-      chart.data.datasets.push(
-        createDataset({ num: i, label: name, data: [datapoint] })
-      );
-    } else {
-      chart.data.datasets[existingDatasetIndex].data.push(datapoint);
-    }
+  } else {
+    chart.data.datasets[existingDatasetIndex].data.push(datapoint);
+  }
+};
+
+const addMarksToChart = (marks, chart) => {
+  marks.forEach((mark, i) => {
+    addMarkToChart(mark, i, chart);
   });
   chart.update();
 };
 
+let chart = { destroy: noop };
+let subscriptions = [];
+
 const cleanup = () => {
   chart.destroy();
-  subscription.unsubscribe();
+  subscriptions.forEach((subscription) => subscription.unsubscribe());
+  subscriptions = [];
 };
 
-const handleSubmit = (event) => {
-  const workbenchName = event.detail.formData.get("workbench");
-
+const runWorkbench = (workbenchName) => {
   cleanup();
-  FormData;
   postMessage("RUN_WORKBENCH", workbenchName);
 
   chart = new Chart(
     canvas.getContext("2d"),
     generateChartConfig({ title: WORKBENCHES[workbenchName].title })
   );
-  subscription = newMarksObserver.subscribe(addMarksToChart);
-
-  event.preventDefault();
+  subscriptions = [
+    reduceObservable(
+      (values, markSet) => {
+        markSet.forEach(({ name, n, duration }) => {
+          const newMark = { n, duration };
+          mapUpdate(name, [newMark], (marks) => marks.concat(newMark), values);
+        });
+        return values;
+      },
+      new Map(),
+      newMarksObserver
+    ).subscribe((result) => {
+      const stuff = [...result.entries()].map(([name, marks], i) => {
+        return createDataset({
+          num: i,
+          label: name,
+          data: marks.map(markToDataPoint),
+        });
+      });
+    }),
+    newMarksObserver.subscribe({
+      next: (marks) => addMarksToChart(marks, chart),
+    }),
+  ];
 };
 
 const Workbench = (workbenches, selectedWorkbench = R.head(workbenches)) => {
+  const { name: workbenchName, subjects, range } = selectedWorkbench;
   const NAME = "workbench";
   const handleInput = (e) => {
-    console.log("hey");
     render(
       controls,
       Workbench(
@@ -85,28 +116,63 @@ const Workbench = (workbenches, selectedWorkbench = R.head(workbenches)) => {
       )
     );
   };
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    runWorkbench(event.detail.formData.get("workbench"));
+  };
+  const endpoints = [R.head(range), R.last(range)].join(" - ");
 
   return html`
-    <sl-card class="workbench-form-card">
-      <sl-form class="workbench-form" onsl-submit=${handleSubmit}>
-        <sl-select
-          label="Choose a workbench"
-          onsl-change=${handleInput}
-          value=${selectedWorkbench.name}
-          name=${NAME}
-        >
-          ${workbenches.map(
-            ({ name, title }) =>
-              html`<sl-menu-item value=${name}>${title}</sl-menu-item>`
-          )}
-        </sl-select>
-        <sl-button submit type="primary">Run Benchmarks!</sl-button>
-      </sl-form>
-    </sl-card>
-    <sl-card class="workbench-info-card">
-      <ul>
-        ${selectedWorkbench.subjects.map(({ name }) => html`<li>${name}</li>`)}
-      </ul>
+    <sl-card>
+      <div class="container-thingy">
+        <sl-form class="workbench-form" onsl-submit=${handleSubmit}>
+          <sl-select
+            label="Choose a workbench"
+            onsl-change=${handleInput}
+            value=${workbenchName}
+            name=${NAME}
+          >
+            ${workbenches.map(
+              ({ name, title }) =>
+                html`<sl-menu-item value=${name}>${title}</sl-menu-item>`
+            )}
+          </sl-select>
+          <sl-button submit type="success">Run</sl-button
+          ><sl-button type="danger" disabled>Stop</sl-button>
+        </sl-form>
+        <div class="workbench-info-container">
+          <table class="workbench-info-table">
+            <tbody>
+              <tr>
+                <th>Functions:</th>
+                <td>${subjects.map(({ fn }) => fn.name).join(", ")}</td>
+              </tr>
+              <tr>
+                <th>Iterations:</th>
+                <td>1000</td>
+              </tr>
+              <tr>
+                <th>n-Values:</th>
+                <td>
+                  <sl-dropdown>
+                    <sl-button slot="trigger" caret>${endpoints}</sl-button>
+                    <sl-menu>
+                      ${range.map(
+                        (number) => html`
+                          <sl-menu-item value=${number}>
+                            <sl-format-number value=${number}>
+                            </sl-format-number>
+                          </sl-menu-item>
+                        `
+                      )}
+                    </sl-menu>
+                  </sl-dropdown>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </sl-card>
   `;
 };

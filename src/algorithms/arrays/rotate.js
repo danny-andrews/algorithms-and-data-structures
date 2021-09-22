@@ -1,23 +1,44 @@
 /*
- * rotate: Given an array of integers `nums` and an integer `k`, return an array which
- * is shifted to the right by `k` steps.
+ * rotate: Given an array `arr` and an integer `k`, return an array which
+ * is shifted to the right `k` times (left if `k` is negative).
  *
- * Signature: (nums = [Number], target = Number) -> Number
+ * Signature: (arr = [Object], k = Number) -> Number
  *
  * Time/Space Complexity:
- * Level 1: O(n²)/O(1)
- * Level 2: O(n)/O(n)
- * Level 3: O(n)/O(1)
+ * Quadratic:  O(n²)/O(1)
+ * Linear:              O(n)/O(n)
+ * Linear in-Place:     O(n)/O(1)
  *
  * Examples:
  * 1. rotate([1, 2, 3], 2) -> [2, 3, 1]
- * 1. rotate([1, 2, 3], -2) -> [3, 1, 2]
- * 1. rotate([1, 2], 2) -> [1, 2]
+ * 2. rotate([1, 2, 3], -2) -> [3, 1, 2]
+ * 3. rotate([1, 2], 6) -> [1, 2]
+ *
+ * Edge-cases:
+ * 1. Empty arrays.
+ * 2. k == zero.
+ * 3. k > arr.length.
  */
-const rotateQuadratic = (nums, k) => {};
+const rotateLinear = (arr, k) => {
+  const n = arr.length;
+  const shiftCount = Math.abs(k % n);
+  const startIndex = k > 0 ? n - shiftCount : shiftCount;
 
-const rotateLinear = (nums, k) => {};
+  return [...arr.slice(startIndex), ...arr.slice(0, startIndex)];
+};
 
-const rotateLinearInPlace = (nums, k) => {};
+const rotateQuadratic = (arr, k) => {
+  const shiftCount = Math.abs(k % arr.length);
+  let i = 1;
+  while (i <= times) {
+    if (k > 0) {
+      arr.unshift(arr.pop());
+    } else {
+      arr.push(arr.shift());
+    }
+  }
 
-export { rotateQuadratic, rotateLinear, rotateLinearInPlace };
+  return arr;
+};
+
+export { rotateQuadratic, rotateLinear };

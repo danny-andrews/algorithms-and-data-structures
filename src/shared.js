@@ -8,7 +8,7 @@ export const pipeline = (arg, ...fns) => fns.reduce((v, fn) => fn(v), arg);
 
 export const reduceAngle = (angle) => Math.abs(angle + 360) % 360;
 
-export const mapUpdate = (map, key, fallbackValue, updater) => {
+export const mapUpdate = (key, fallbackValue, updater, map) => {
   if (map.has(key)) {
     map.set(key, updater(map.get(key)));
   } else {
@@ -39,14 +39,35 @@ export const wait = (time) =>
 export const fromWorkerEvent = (worker, eventType) =>
   new Observable((emitter) => {
     const listener = (e) => {
-      const { type, data } = e.data;
-      if (type === eventType) {
+      const { name, data, type } = e.data;
+      if (name !== eventType) return;
+      if (type === "END") {
+        emitter.complete();
+        worker.removeEventListener("message", listener);
+      } else {
         emitter.next(data);
       }
     };
     worker.addEventListener("message", listener);
-
-    return () => {
-      worker.removeEventListener("message", listener);
-    };
   });
+
+export const reduceObservable = (fn, seed, obs) => {
+  let hasValue = false;
+  let acc = seed;
+
+  return new Observable((observer) =>
+    obs.subscribe({
+      next(value) {
+        hasValue = true;
+        acc = fn(acc, value);
+      },
+      error(e) {
+        observer.error(e);
+      },
+      complete() {
+        observer.next(acc);
+        observer.complete();
+      },
+    })
+  );
+};

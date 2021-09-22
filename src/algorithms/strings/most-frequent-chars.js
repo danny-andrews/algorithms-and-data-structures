@@ -8,7 +8,7 @@ const mostFrequentChars = (string) => {
   };
 
   for (let char of string) {
-    mapUpdate(frequencies, char, 1, (frequency) => frequency + 1);
+    mapUpdate(char, 1, (frequency) => frequency + 1, frequencies);
     const newFrequency = frequencies.get(char);
     const maxFrequency = counter.frequency;
 

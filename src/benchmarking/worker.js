@@ -33,19 +33,19 @@ const runWorkbench = (workbench) => {
   ).subscribe({
     next: (marks) => {
       postMessage({
-        type: "NEW_MARKS",
+        name: "NEW_MARKS",
         data: marks,
       });
     },
     complete: () => {
-      postMessage({ type: "ALL_MARKS" });
+      postMessage({ name: "NEW_MARKS", type: "END" });
     },
   });
 };
 
 onmessage = (message) => {
-  const { type, data } = message.data;
-  if (type === "RUN_WORKBENCH") runWorkbench(data);
+  const { name, data } = message.data;
+  if (name === "RUN_WORKBENCH") runWorkbench(data);
 };
 
 onerror = (e) => {
