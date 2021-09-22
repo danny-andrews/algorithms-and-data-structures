@@ -12,7 +12,7 @@ body {
   margin: 0;
 }
 
-body {
+main {
   padding: var(--sl-spacing-large);
 }
 
