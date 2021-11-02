@@ -2,10 +2,9 @@ import fc from "fast-check";
 import prand from "pure-rand";
 import * as R from "ramda";
 import { capitalCase } from "change-case";
-import perf_hooks from "perf_hooks";
 import { pipeline } from "../shared.js";
 
-const { performance } = perf_hooks;
+const { performance } = self;
 
 const rng = new fc.Random(prand.xoroshiro128plus(performance.now()));
 
@@ -51,7 +50,7 @@ export const asympoticBenchmarks = ({
       yield subjects.map((subject) => ({
         name: capitalCase(subject.name),
         n,
-        duration: medianTime(() => subject(...generateInput(n)), iterations),
+        duration: medianTime(() => subject.fn(...generateInput(n)), iterations),
       }));
     }
   }

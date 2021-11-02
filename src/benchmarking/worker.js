@@ -1,51 +1,56 @@
 import * as R from "ramda";
-import Observable from "core-js-pure/features/observable";
+import { Observable } from "rxjs";
 import { asympoticBenchmarks } from "./benchmarking.js";
-import { WORKBENCHES } from "./workbenches.js";
+import { getWorkbenches } from "./workbenches.js";
 import { noop, wait, pipeline } from "../shared.js";
 
+const workbenches = getWorkbenches();
+
 const makeBenchmarkObservable = (generator) =>
-  new Observable((emitter) => {
+  new Observable((observer) => {
     (async () => {
       for await (const marks of generator()) {
-        if (emitter.closed) {
+        if (observer.closed) {
           break;
         }
 
         await wait();
-        emitter.next(marks);
+        observer.next(marks);
         await wait();
       }
-      emitter.complete();
+      observer.complete();
     })();
   });
 
 let subscription = { unsubscribe: noop };
 
-const runWorkbench = (workbench) => {
+const stopWorkbench = () => {
   subscription.unsubscribe();
+};
 
+const runWorkbench = (workbenchName) => {
   subscription = pipeline(
-    WORKBENCHES,
-    R.prop(workbench),
+    workbenches,
+    R.find(({ name }) => workbenchName === name),
     asympoticBenchmarks,
     makeBenchmarkObservable
   ).subscribe({
     next: (marks) => {
       postMessage({
         name: "NEW_MARKS",
-        data: marks,
+        payload: marks,
       });
     },
     complete: () => {
-      postMessage({ name: "NEW_MARKS", type: "END" });
+      postMessage({ name: "MARKSET_COMPLETE" });
     },
   });
 };
 
 onmessage = (message) => {
-  const { name, data } = message.data;
-  if (name === "RUN_WORKBENCH") runWorkbench(data);
+  const { name, payload } = message.data;
+  if (name === "RUN_WORKBENCH") runWorkbench(payload);
+  if (name === "STOP_WORKBENCH") stopWorkbench();
 };
 
 onerror = (e) => {

@@ -1,5 +1,5 @@
 import * as R from "ramda";
-import Observable from "core-js-pure/features/observable";
+import { Observable } from "rxjs";
 
 export const range = (size, startAt = 0, step = 1) =>
   R.range(startAt, startAt + size).map((n) => n * step);
@@ -37,21 +37,17 @@ export const wait = (time) =>
   });
 
 export const fromWorkerEvent = (worker, eventType) =>
-  new Observable((emitter) => {
+  new Observable((observer) => {
     const listener = (e) => {
-      const { name, data, type } = e.data;
-      if (name !== eventType) return;
-      if (type === "END") {
-        emitter.complete();
-        worker.removeEventListener("message", listener);
-      } else {
-        emitter.next(data);
+      const { name, payload } = e.data;
+      if (name === eventType) {
+        observer.next(payload);
       }
     };
     worker.addEventListener("message", listener);
   });
 
-export const reduceObservable = (fn, seed, obs) => {
+export const reduceObservable = R.curryN(3, (fn, seed, obs) => {
   let hasValue = false;
   let acc = seed;
 
@@ -70,4 +66,24 @@ export const reduceObservable = (fn, seed, obs) => {
       },
     })
   );
-};
+});
+
+export const mapObservable = R.curryN(
+  2,
+  (fn, observable) =>
+    new Observable((observer) =>
+      observable.subscribe({
+        next: (value) => {
+          observer.next(fn(value));
+        },
+        error: observer.error.bind(observer),
+        complete: observer.complete.bind(observer),
+      })
+    )
+);
+
+const numberFormat = new Intl.NumberFormat("en-US", {
+  style: "decimal",
+});
+
+export const formatNumber = numberFormat.format;
