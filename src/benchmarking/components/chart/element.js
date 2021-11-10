@@ -1,6 +1,6 @@
 import { Chart } from "chart.js";
 import { LitElement, html, css } from "lit";
-import { roundTo } from "../../shared.js";
+import { roundTo } from "../../../shared.js";
 
 const makeChartConfig = ({
   title = "",
@@ -65,7 +65,7 @@ const CHART_COLORS = [
   "rgb(255, 151, 65)",
 ];
 
-class MyChart extends LitElement {
+export default class MyChart extends LitElement {
   static properties = {
     title: { reflect: true },
     datasets: {},

@@ -2,15 +2,9 @@
 @import "@shoelace-style/shoelace/dist/themes/light.css";
 @import "./reset.css";
 
-:root,
-sl-card,
-workbench {
-  --border: 1px solid var(--border-color);
-  --border-radius: var(--sl-input-border-radius-medium);
-}
-
 /* Top-level */
 body {
+  color: rgb(var(--sl-color-neutral-700));
   font-family: var(--sl-font-sans);
   background: rgb(var(--sl-color-neutral-50));
   min-height: 100vh;
@@ -22,9 +16,4 @@ main {
 
 h1 {
   font-size: var(--sl-font-size-2x-large);
-}
-
-/* Utility */
-.inner-spacing-small > * + * {
-  margin-top: var(--sl-spacing-small);
 }

@@ -1,4 +1,5 @@
-import "./app.js";
-import "./chart.js";
-import "./workbench-form.js";
-import "./workbench-table.js";
+import "./app/element.js";
+import "./chart/element.js";
+import "./workbench-form/element.js";
+import "./workbench-table/element.js";
+import "./h/element.js";
