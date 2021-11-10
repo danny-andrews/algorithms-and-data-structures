@@ -1,6 +1,6 @@
 # Algorithms and Data Structures
 
-This repo contains common algorithms and data structure implementations.
+This repo contains common algorithms and data structures.
 
 Algorithms are organized by which techniques or data structures they use.
 
