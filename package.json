@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "test": "tap --no-coverage --reporter=spec",
-    "start": "npx snowpack dev"
+    "start": "snowpack dev"
   },
   "dependencies": {
     "@shoelace-style/shoelace": "^2.0.0-beta.52",
