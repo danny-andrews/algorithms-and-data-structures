@@ -19,13 +19,14 @@
 const twoSum = (nums, target) => {
   const map = new Map();
   for (let i = 0; i < nums.length; i++) {
-    const num = nums[i];
-    if (map.has(num)) {
-      return [map.get(num), i];
+    if (map.has(target - nums[i])) {
+      return [map.get(target - nums[i]), i];
     } else {
-      map.set(target - num, i);
+      map.set(nums[i], i);
     }
   }
+
+  return [];
 };
 
 export default twoSum;
