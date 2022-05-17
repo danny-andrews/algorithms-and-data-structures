@@ -52,4 +52,11 @@ export default css`
   tr:nth-child(even) {
     background: rgb(var(--sl-color-neutral-50));
   }
+
+  .heading {
+    background: rgb(var(--sl-color-neutral-50));
+    border-bottom: var(--border);
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+  }
 `;

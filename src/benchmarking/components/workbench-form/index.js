@@ -76,7 +76,6 @@ class WorkbenchForm extends LitElement {
                     </sl-button>
                   </div>
                 </div>
-                <abm-h class="heading" level="2" as="5">Workbench Info</abm-h>
                 <workbench-table
                   .subjects=${subjects}
                   .range=${range}
